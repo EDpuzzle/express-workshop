@@ -66,12 +66,10 @@ function postTodo (req, res, next) {
 
 	newTodo.validate(function (err) {
 		if (err) {
-			console.log(err);
 			return res.status(500).json({message: "Something horrible happened"});
 		}
 		newTodo.save(function (err, createdTodo) {
 			if (err) {
-				console.log(err);
 				return res.status(500).json({message: "Something horrible happened"});
 			}
 			return res.status(201).json(createdTodo);
