@@ -14,66 +14,36 @@ var todos = [
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(bodyParser.json());
 
+/* ====================================================== */
+/*                      Middleware                        */
+/* ====================================================== */
+
+function requestLogger (req, res, next) {
+	console.log(">>>> Request received! <<<<");
+	return next();
+}
+
+function errorHandler (err, req, res, next) {
+	console.log("💣💥 KABOOM!! (" + err.message + ") 💥💣");
+	return res.status(500).json();
+}
+
+/* ====================================================== */
+/*                        Routes                          */
+/* ====================================================== */
+
 // GET
 // ------
 
-// curl -X GET http://localhost:3000/todos/1
-app.get("/todos/:id", function (req, res) {
-	var id = req.params.id;
-
-	if (id < todos.length) {
-		res.json(todos[id]);
-	} else {
-		res.status(404).json();
-	}
-});
-
-
 // curl -X GET http://localhost:3000/todos
-app.get("/todos", function (req, res) {
+app.get("/todos", requestLogger, function (req, res) {
+
+	throw new Error("Horrible error");
+
 	res.status(200).json(todos);
 });
 
-// POST
-// ------
-
-// curl -X POST -d "{\"todo\":\"Learn JavaScript ES6\"}" http://localhost:3000/todos
-app.post("/todos", function (req, res) {
-	var todo = req.body.todo;
-
-	todos.push(todo);
-	res.status(201).json(todo);
-});
-
-// PUT
-// ------
-
-// curl -X PUT -d "{\"todo\":\"Grab a free beer from the fridge [DONE]\"}" http://localhost:3000/todos/1
-app.put("/todos/:id", function (req, res) {
-	var id = req.params.id;
-	var todo = req.body.todo; // Updated todo
-
-	if (id < todos.length) {
-		todos[id] = todo;
-		res.status(200).json(todos[id]);
-	} else {
-		res.status(404).json();
-	}
-});
-
-// DELETE
-// ------
-
-// curl -X DELETE http://localhost:3000/todos/0
-app.delete("/todos/:id", function (req, res) {
-	var id = req.params.id;
-
-	if (id < todos.length) {
-		res.status(200).json(todos.splice(id, 1));
-	} else {
-		res.status(404).json();
-	}
-});
+app.use(errorHandler);
 
 // Start Server on port 3000
 app.listen(3000);
