@@ -6,7 +6,8 @@ var path = require("path");
 var hbs = require("hbs");
 var logger = require("morgan");
 var errorHandler = require("./middleware/error_middleware");
-var todosRouter = require("./routers/todos_router");	
+var v1TodosRouter = require("./routers/v1/todos_router");	
+var v2TodosRouter = require("./routers/v2/todos_router");	
 
 var mongoose = require("mongoose");
 mongoose.connect("mongodb://localhost:27017/ironhack-db");
@@ -27,7 +28,8 @@ app.use(bodyParser.json());
 /*                        Routes                          */
 /* ====================================================== */
 
-app.use("/api/v1/todos", todosRouter);
+app.use("/api/v1/todos", v1TodosRouter);
+app.use("/api/v2/todos", v2TodosRouter);
 
 app.use("/", function (req, res) {
 	return res.render("index");

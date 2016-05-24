@@ -4,7 +4,7 @@
 /*                        Models                          */
 /* ====================================================== */
 
-var Todo = require("./../models/todo_model");
+var Todo = require("./../../models/todo_model");
 
 /* ====================================================== */
 /*                      Public API                        */
@@ -60,8 +60,11 @@ function postTodo (req, res, next) {
 	var todo = req.body.todo;
 
 	var newTodo = new Todo({
-		name   : todo,
-		status : "incomplete"
+		userId      : req.cookies.userId, // Let's assume we have a cookie
+		title       : todo,
+		description : "",
+		status      : "incomplete",
+		isFavorite  : false 
 	});
 
 	newTodo.validate(function (err) {
@@ -84,7 +87,7 @@ function putTodo (req, res, next) {
 	var id = req.params.id;
 
 	var updatedInfo = {
-		name   : req.body.name,
+		title  : req.body.name,
 		status : req.body.status
 	};
 

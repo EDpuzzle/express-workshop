@@ -7,7 +7,7 @@ var router  = Express.Router();
 /*                     Controllers                        */
 /* ====================================================== */
 
-var TodosController = require("./../controllers/todos_controller");
+var TodosController = require("./../../controllers/v2/todos_controller");
 
 /* ====================================================== */
 /*                        Router                          */
