@@ -4,12 +4,7 @@
 /*                        Models                          */
 /* ====================================================== */
 
-// Temporary fake Model until we add MongoDB to the app
-var todos = [
-	"Check out EDpuzzle",
-	"Grab a free beer from the fridge",
-	"Stop using Todos as an example app"
-];
+var Todo = require("./../models/todo_model");
 
 /* ====================================================== */
 /*                      Public API                        */
@@ -37,12 +32,25 @@ function getTodo (req, res, next) {
 		return res.status(404).json();
 	}
 
-	return res.status(200).json(todos[id]);
+	Todo.findById(id, function (err, todo) {
+		if (err) {
+			return res.status(500).json({message: "Something horrible happened"});
+		}
+		if (!todo) {
+			return res.status(404).json({message: "We couldn't find that Todo"});
+		}
+		return res.status(200).json(todo);
+	});
 }
 
 
 function getTodos (req, res, next) {
-	res.status(200).json(todos);
+	Todo.find({}, function (err, todos) {
+		if (err) {
+			return res.status(500).json({message: "Something horrible happened"});
+		}
+		return res.status(200).json(todos);
+	});
 }
 
 // POST
@@ -51,8 +59,24 @@ function getTodos (req, res, next) {
 function postTodo (req, res, next) {
 	var todo = req.body.todo;
 
-	todos.push(todo);
-	res.status(201).json(todo);
+	var newTodo = new Todo({
+		name   : todo,
+		status : "incomplete"
+	});
+
+	newTodo.validate(function (err) {
+		if (err) {
+			console.log(err);
+			return res.status(500).json({message: "Something horrible happened"});
+		}
+		newTodo.save(function (err, createdTodo) {
+			if (err) {
+				console.log(err);
+				return res.status(500).json({message: "Something horrible happened"});
+			}
+			return res.status(201).json(createdTodo);
+		});
+	});
 }
 
 // PUT
@@ -60,14 +84,18 @@ function postTodo (req, res, next) {
 
 function putTodo (req, res, next) {
 	var id = req.params.id;
-	var todo = req.body.todo;
 
-	if (id >= todos.length) {
-		return res.status(404).json();
-	}
+	var updatedInfo = {
+		name   : req.body.name,
+		status : req.body.status
+	};
 
-	todos[id] = todo;
-	return res.status(200).json(todos[i]);
+	Todo.findByIdAndUpdate(id, updatedInfo, {new: true}, function (err, updatedTodo) {
+		if (err) {
+			return res.status(500).json({message: "Something horrible happened"});
+		}
+		return res.status(200).json(updatedTodo);
+	});
 }
 
 // DELETE
@@ -77,10 +105,14 @@ function deleteTodo (req, res, next) {
 	var id = req.params.id;
 	var todo = req.body.todo;
 
-	if (id >= todos.length) {
-		return res.status(404).json();
-	}
+	Todo.findByIdAndRemove(id, function (err, deletedTodo) {
+		if (err) {
+			return res.status(500).json({message: "Something horrible happened"});
+		}
+		if (!deletedTodo) {
+			return res.status(404).json({message: "We couldn't find that Todo"});
+		}
+		return res.status(200).json(deletedTodo);
+	});
 
-	var deletedTodo = todos.splice(id, 1);
-	return res.status(200).json(deletedTodo);
 }
