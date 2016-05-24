@@ -15,5 +15,9 @@
   "bugs": {
     "url": "https://github.com/EDpuzzle/express-workshop/issues"
   },
-  "homepage": "https://github.com/EDpuzzle/express-workshop#readme"
+  "homepage": "https://github.com/EDpuzzle/express-workshop#readme",
+  "dependencies": {
+    "body-parser": "^1.15.1",
+    "express": "^4.13.4"
+  }
 }
