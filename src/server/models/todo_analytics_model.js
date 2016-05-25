@@ -1,6 +1,7 @@
 "use strict";
 
 var mongoose = require("mongoose");
+var boom = require("boom");
 var Schema = mongoose.Schema;
 
 /* ====================================================== */
@@ -46,10 +47,10 @@ function todoCreated (userId) {
     });
 
     newTodoAnalyticsEvent.validate(function (err) {
-      if (err) return callback(err);
+      if (err) return callback(Boom.wrap(err));
 
       newTodoAnalyticsEvent.save(function (err, analyticsEvent) {
-        if (err) return reject(err);
+        if (err) return reject(Boom.wrap(err));
         return resolve(analyticsEvent);
       });
     });

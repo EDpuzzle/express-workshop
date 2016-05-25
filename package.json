@@ -19,6 +19,7 @@
   "homepage": "https://github.com/EDpuzzle/express-workshop#readme",
   "dependencies": {
     "body-parser": "^1.15.1",
+    "boom": "^3.2.1",
     "express": "^4.13.4",
     "hbs": "^4.0.0",
     "lodash": "^4.13.1",

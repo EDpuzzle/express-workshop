@@ -27,7 +27,7 @@ var todosRouter = function (router) {
 				return res.status(200).json(todo);
 			})
 			.catch(function (err) {
-				return res.status(500).json({message: "Something horrible happened"});
+				next(err)
 			});
 	});
 
@@ -63,9 +63,7 @@ var todosRouter = function (router) {
 			return res.status(201).json(createdTodo);
 		})
 		.catch(function (err) {
-			console.log(err);
-			console.log(err.stack);
-			return res.status(500).json({message: "Something horrible happened"});
+			next(err)
 		});
 	});
 
@@ -86,7 +84,7 @@ var todosRouter = function (router) {
 			return res.status(200).json(updatedTodo);
 		})
 		.catch(function (err) {
-			return res.status(500).json({message: "Something horrible happened"});
+			next(err)
 		});
 
 	});
@@ -103,7 +101,7 @@ var todosRouter = function (router) {
 				return res.status(200).json(deletedTodo);
 			})
 			.catch(function (err) {
-				return res.status(500).json({message: "Something horrible happened"});
+				next(err)
 			});
 
 	});

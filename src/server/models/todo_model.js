@@ -1,6 +1,7 @@
 "use strict";
 
 var mongoose = require("mongoose");
+var boom = require("boom");
 var Schema = mongoose.Schema;
 
 /* ====================================================== */
@@ -64,7 +65,12 @@ var Todo = mongoose.model("todo", TodoSchema);
 function getTodo (id) {
   return new Promise(function (resolve, reject) {
     Todo.findById(id, function (err, todo) {
-      if (err) return reject(err);
+      if (err) return reject(Boom.wrap(err));
+
+      if (!todo) {
+        return reject(Boom.notFound("Missing TODO"));
+      }
+
       return resolve(todo);
     });
   });
@@ -73,7 +79,7 @@ function getTodo (id) {
 function getTodos () {
   return new Promise(function (resolve, reject) {
     Todo.find({}, function (err, todos) {
-      if (err) return reject(err);
+      if (err) return reject(Boom.wrap(err));
       return resolve(todos);
     });
   });
@@ -93,13 +99,11 @@ function postTodo (todo) {
       isFavorite  : todo.isFavorite || false 
     });
 
-    console.log(newTodo);
-
     newTodo.validate(function (err) {
-      if (err) return reject(err);
+      if (err) return reject(Boom.wrap(err));
 
       newTodo.save(function (err, createdTodo) {
-        if (err) return reject(err);
+        if (err) return reject(Boom.wrap(err));
         return resolve(createdTodo);
       });
     });
@@ -118,7 +122,7 @@ function putTodo (id,todo) {
     };
 
     Todo.findByIdAndUpdate(id, updatedInfo, {new: true}, function (err, updatedTodo) {
-      if (err) return reject(err);
+      if (err) return reject(Boom.wrap(err));
       return resolve(updatedTodo);
     });
   });
@@ -130,7 +134,7 @@ function putTodo (id,todo) {
 function deleteTodo (id) {
   return new Promise(function (resolve, reject) {
     Todo.findByIdAndRemove(id, function (err, deletedTodo) {
-      if (err) return reject(err);
+      if (err) return reject(Boom.wrap(err));
       return resolve(deletedTodo);
     });
   });

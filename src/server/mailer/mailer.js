@@ -1,6 +1,7 @@
 "use strict";
 
 var nodemailer = require("nodemailer");
+var boom = require("boom");
 
 // create reusable transporter object using the default SMTP transport
 // To make this work you will have to configure your email's SMTP
@@ -33,7 +34,7 @@ function sendEmail (options, callback) {
 
 		// send mail with defined transport object
 		transporter.sendMail(mailOptions, function (err, info) {
-	    if (err) return reject(err);
+	    if (err) return reject(Boom.wrap(err, 502));
 	    
 	    return resolve();
 		});
