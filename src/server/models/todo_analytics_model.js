@@ -3,6 +3,18 @@
 var mongoose = require("mongoose");
 var Schema = mongoose.Schema;
 
+/* ====================================================== */
+/*                      Public API                        */
+/* ====================================================== */
+
+module.exports = {
+  todoCreated: todoCreated
+};
+
+/* ====================================================== */
+/*                        Schema                          */
+/* ====================================================== */
+
 var TodoAnalyticsSchema = new Schema({
   userId: {
     type: mongoose.Schema.ObjectId,
@@ -20,4 +32,26 @@ TodoAnalyticsSchema.pre("save", function (next) {
   return next();
 });
 
-module.exports = mongoose.model("todo_analytics", TodoAnalyticsSchema);
+var TodoAnalytics = mongoose.model("todo_analytics", TodoAnalyticsSchema);
+
+/* ====================================================== */
+/*                   Implementation                       */
+/* ====================================================== */
+
+function todoCreated (userId) {
+  return new Promise(function (resolve, reject) {
+
+    var newTodoAnalyticsEvent = new TodoAnalytics({
+      userId: userId
+    });
+
+    newTodoAnalyticsEvent.validate(function (err) {
+      if (err) return callback(err);
+
+      newTodoAnalyticsEvent.save(function (err, analyticsEvent) {
+        if (err) return reject(err);
+        return resolve(analyticsEvent);
+      });
+    });
+  });
+}

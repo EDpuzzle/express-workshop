@@ -1,5 +1,6 @@
 "use strict";
 
+var when = require("when");
 var mailer = require("./../mailer/mailer");
 
 /* ====================================================== */
@@ -28,80 +29,48 @@ module.exports = {
 // GET
 // ----
 
-function getTodo (id, callback) {
-	Todo.findById(id, callback);
+function getTodo (id) {
+	return Todo.getTodo(id);
 }
 
 
-function getTodos (callback) {
-	Todo.find({}, callback);
+function getTodos () {
+	return Todo.getTodos();
 }
 
 // POST
 // ----
 
-function postTodo (todo, callback) {
+function postTodo (todo) {
+	var newTodo;
 
-	// 1. Create TODO
-	// 2. Add analytics event
-	// 3. Send email to the user
-
-	// 1. Create TODO
-	var newTodo = new Todo({
-		userId      : todo.userId,
-		title       : todo.title,
-		description : todo.description || "",
-		status      : todo.status || "incomplete",
-		isFavorite  : todo.isFavorite || false 
-	});
-
-	newTodo.validate(function (err) {
-		if (err) return callback(err);
-
-		newTodo.save(function (err, todo) {
-			if (err) return callback(err);
-
-			// 2. Add analytics event
-			var newTodoAnalyticsEvent = new TodoAnalytics({
-				userId: todo.userId
+	return Todo.postTodo(todo)
+		.then(function (createdTodo) {
+			newTodo = createdTodo;
+			return TodoAnalytics.todoCreated(createdTodo.userId);
+		})
+		.then(function () {
+			return mailer.sendEmail({
+				emailTo : "bar@blurdybloop.com, baz@blurdybloop.com",
+				subject : "✔ New Todo Created!",
+				text    : "Your TODO has been created"
 			});
-
-			newTodoAnalyticsEvent.validate(function (err) {
-				if (err) return callback(err);
-
-				newTodoAnalyticsEvent.save(function (err, analyticsEvent) {
-					if (err) return callback(err);
-
-					// 3. Send email to the user
-					mailer.sendEmail({
-						emailTo : "bar@blurdybloop.com, baz@blurdybloop.com",
-						subject : "✔ New Todo Created!",
-						text    : "Your TODO has been created"
-					}, function (err) {
-						if (err) return callback(err);
-						return callback(null, todo);
-					});
-				});
-			});
+		})
+		.then(function () {
+			return newTodo;
 		});
-	});
 }
 
 // PUT
 // ----
 
-function putTodo (id, todo, callback) {
-	var updatedInfo = {
-		title  : todo.title,
-		status : todo.status
-	};
-
-	Todo.findByIdAndUpdate(id, updatedInfo, {new: true}, callback);
+function putTodo (id, todo) {
+	return Todo.putTodo(id, todo);
 }
 
 // DELETE
 // ------
 
-function deleteTodo (id, callback) {
-	Todo.findByIdAndRemove(id, callback);
+function deleteTodo (id) {
+	return Todo.deleteTodo(id);
 }

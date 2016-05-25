@@ -19,19 +19,24 @@ module.exports = {
 /* ====================================================== */
 
 function sendEmail (options, callback) {
-	// setup e-mail data with unicode symbols
-	var mailOptions = {
-	  from    : '"Fred Foo 👥" <foo@blurdybloop.com>',
-	  to      : options.emailTo,
-	  subject : options.subject,
-	  text    : options.text,
-	  html    : "<b>" + options.text + "</b>"
-	};
+	return new Promise(function (resolve, reject) {
+		return resolve();
+		
+		// setup e-mail data with unicode symbols
+		var mailOptions = {
+		  from    : '"Fred Foo 👥" <foo@blurdybloop.com>',
+		  to      : options.emailTo,
+		  subject : options.subject,
+		  text    : options.text,
+		  html    : "<b>" + options.text + "</b>"
+		};
 
-	// send mail with defined transport object
-	transporter.sendMail(mailOptions, function (err, info) {
-    if (err) return callback(err);
-    
-    callback(null);
+		// send mail with defined transport object
+		transporter.sendMail(mailOptions, function (err, info) {
+	    if (err) return reject(err);
+	    
+	    return resolve();
+		});
+
 	});
 }

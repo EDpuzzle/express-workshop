@@ -3,9 +3,21 @@
 var mongoose = require("mongoose");
 var Schema = mongoose.Schema;
 
-// CHANGELOG
-// - We change some attribute names
-// - We add new attributes
+/* ====================================================== */
+/*                      Public API                        */
+/* ====================================================== */
+
+module.exports = {
+  getTodo    : getTodo,
+  getTodos   : getTodos,
+  postTodo   : postTodo,
+  putTodo    : putTodo,
+  deleteTodo : deleteTodo
+};
+
+/* ====================================================== */
+/*                        Schema                          */
+/* ====================================================== */
 
 var TodoSchema = new Schema({
   userId: {
@@ -40,24 +52,86 @@ TodoSchema.methods.convertToOldTodo = function () {
   };
 };
 
-module.exports = mongoose.model("todo", TodoSchema);
+var Todo = mongoose.model("todo", TodoSchema);
 
-// BEFORE
+/* ====================================================== */
+/*                   Implementation                       */
+/* ====================================================== */
 
-/*
-{ 
-  name   : "Learn JavaScript ES6",
-  status : "completed"  
+// GET
+// ----
+
+function getTodo (id) {
+  return new Promise(function (resolve, reject) {
+    Todo.findById(id, function (err, todo) {
+      if (err) return reject(err);
+      return resolve(todo);
+    });
+  });
 }
-*/
 
-// NOW
-
-/*
-{ 
-  title       : "Learn JavaScript ES6",
-  description : "Refresh knowledge about new ES6 syntax, it is very useful"
-  status      : "completed",
-  isFavorite  : false
+function getTodos () {
+  return new Promise(function (resolve, reject) {
+    Todo.find({}, function (err, todos) {
+      if (err) return reject(err);
+      return resolve(todos);
+    });
+  });
 }
-*/
+
+// POST
+// ----
+
+function postTodo (todo) {
+  return new Promise(function (resolve, reject) {
+
+    var newTodo = new Todo({
+      userId      : todo.userId,
+      title       : todo.title,
+      description : todo.description || "(No description)",
+      status      : todo.status || "incomplete",
+      isFavorite  : todo.isFavorite || false 
+    });
+
+    console.log(newTodo);
+
+    newTodo.validate(function (err) {
+      if (err) return reject(err);
+
+      newTodo.save(function (err, createdTodo) {
+        if (err) return reject(err);
+        return resolve(createdTodo);
+      });
+    });
+
+  });
+}
+
+// PUT
+// -----
+
+function putTodo (id,todo) {
+  return new Promise(function (resolve, reject) {
+    var updatedInfo = {
+      title  : todo.title,
+      status : todo.status
+    };
+
+    Todo.findByIdAndUpdate(id, updatedInfo, {new: true}, function (err, updatedTodo) {
+      if (err) return reject(err);
+      return resolve(updatedTodo);
+    });
+  });
+} 
+
+// DELETE
+// ------
+
+function deleteTodo (id) {
+  return new Promise(function (resolve, reject) {
+    Todo.findByIdAndRemove(id, function (err, deletedTodo) {
+      if (err) return reject(err);
+      return resolve(deletedTodo);
+    });
+  });
+}

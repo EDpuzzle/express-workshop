@@ -21,56 +21,46 @@ var todosRouter = function (router) {
 	// ------
 
 	router.get("/:id", function (req, res, next) {
-
 		var id = req.params.id;
-
-		TodosController.getTodo(id, function (err, todo) {
-			if (err) {
+		TodosController.getTodo(id)
+			.then(function (todo) {
+				return res.status(200).json(todo.convertToOldTodo());
+			})
+			.catch(function (err) {
 				return res.status(500).json({message: "Something horrible happened"});
-			}
-			if (!todo) {
-				return res.status(404).json({message: "We couldn't find that Todo"});
-			}
-			return res.status(200).json(todo.convertToOldTodo());
-		});
-
+			});
 	});
 
 	router.get("/", function (req, res, next) {
-
-		TodosController.getTodos(function (err, todos) {
-			if (err) {
+		TodosController.getTodos()
+			.then(function (todos) {
+				var parsedTodos = _.map(todos, function (todo) {
+					return todo.convertToOldTodo();
+				});
+				res.status(200).json(parsedTodos);
+			})
+			.catch(function (err) {
 				return res.status(500).json({message: "Something horrible happened"});
-			}
-			var parsedTodos = _.map(todos, function (todo) {
-				return todo.convertToOldTodo();
 			});
-			return res.status(200).json(parsedTodos);
-		});
-
 	});
 	
 	// POST
 	// ------
 	
 	router.post("/", function (req, res, next) {
-
 		var todo = req.body.todo;
-		var userId = req.cookies.userId; // Let's assume we have a cookie
+		var userId = "56ab2ec74c9bcb324197f384";
 
 		TodosController.postTodo({
-			userId      : userId,
-			title       : todo,
-			description : "",
-			status      : "incomplete",
-			isFavorite  : false
-		}, function (err, createdTodo) {
-			if (err) {
-				return res.status(500).json({message: "Something horrible happened"});
-			}
+			title  : todo,
+			userId : userId
+		})
+		.then(function (createdTodo) {
 			return res.status(201).json(createdTodo.convertToOldTodo());
+		})
+		.catch(function (err) {
+			return res.status(500).json({message: "Something horrible happened"});
 		});
-
 	});
 
 	// PUT
@@ -83,13 +73,14 @@ var todosRouter = function (router) {
 		var status = req.body.status;
 
 		TodosController.putTodo(id, {
-			title  : name,
+			title  : title,
 			status : status
-		}, function (err, updatedTodo) {
-			if (err) {
-				return res.status(500).json({message: "Something horrible happened"});
-			}
+		})
+		.then(function (createdTodo) {
 			return res.status(200).json(updatedTodo.convertToOldTodo());
+		})
+		.catch(function (err) {
+			return res.status(500).json({message: "Something horrible happened"});
 		});
 
 	});
@@ -101,15 +92,13 @@ var todosRouter = function (router) {
 
 		var id = req.params.id;
 
-		TodosController.deleteTodo(id, function (err, deletedTodo) {
-			if (err) {
+		TodosController.deleteTodo(id)
+			.then(function (deletedTodo) {
+				return res.status(200).json(deletedTodo.convertToOldTodo());
+			})
+			.catch(function (err) {
 				return res.status(500).json({message: "Something horrible happened"});
-			}
-			if (!deletedTodo) {
-				return res.status(404).json({message: "We couldn't find that Todo"});
-			}
-			return res.status(200).json(deletedTodo.convertToOldTodo());
-		});
+			});
 
 	});
 
