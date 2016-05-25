@@ -19,7 +19,7 @@ module.exports = {
 /*                   Implementation                       */
 /* ====================================================== */
 
-function sendEmail (options, callback) {
+function sendEmail (options) {
 	return new Promise(function (resolve, reject) {
 		return resolve();
 		

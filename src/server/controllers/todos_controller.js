@@ -1,7 +1,7 @@
 "use strict";
 
 var when = require("when");
-var mailer = require("./../mailer/mailer");
+var EmailSender = require("./../routers/rabbitmq/senders/email/email_sender");
 
 /* ====================================================== */
 /*                        Models                          */
@@ -50,7 +50,7 @@ function postTodo (todo) {
 			return TodoAnalytics.todoCreated(createdTodo.userId);
 		})
 		.then(function () {
-			return mailer.sendEmail({
+			return EmailSender.sendEmail({
 				emailTo : "bar@blurdybloop.com, baz@blurdybloop.com",
 				subject : "✔ New Todo Created!",
 				text    : "Your TODO has been created"
