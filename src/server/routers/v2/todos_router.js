@@ -63,8 +63,6 @@ var todosRouter = function (router) {
 			return res.status(201).json(createdTodo);
 		})
 		.catch(function (err) {
-			console.log(err);
-			console.log(err.stack);
 			return res.status(500).json({message: "Something horrible happened"});
 		});
 	});

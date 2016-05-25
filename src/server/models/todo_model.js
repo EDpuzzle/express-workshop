@@ -93,8 +93,6 @@ function postTodo (todo) {
       isFavorite  : todo.isFavorite || false 
     });
 
-    console.log(newTodo);
-
     newTodo.validate(function (err) {
       if (err) return reject(err);
 
