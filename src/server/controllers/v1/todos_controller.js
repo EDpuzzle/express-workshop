@@ -1,12 +1,20 @@
 "use strict";
 
 var _ = require("lodash");
+var nodemailer = require("nodemailer");
+
+// create reusable transporter object using the default SMTP transport
+// To make this work you will have to configure your email's SMTP
+var transporter = nodemailer.createTransport("smtps://user%40gmail.com:pass@smtp.gmail.com");
+
+var mailer = require("./../../mailer/mailer");
 
 /* ====================================================== */
 /*                        Models                          */
 /* ====================================================== */
 
 var Todo = require("./../../models/todo_model");
+var TodoAnalytics = require("./../../models/todo_analytics_model");
 
 /* ====================================================== */
 /*                      Public API                        */
@@ -65,8 +73,15 @@ function getTodos (req, res, next) {
 // ----
 
 function postTodo (req, res, next) {
+
+	// 1. Create TODO
+	// 2. Add analytics event
+	// 3. Send email to the user
+
 	var todo = req.body.todo;
 
+
+	// 1. Create TODO
 	var newTodo = new Todo({
 		userId      : req.cookies.userId, // Let's assume we have a cookie
 		title       : todo,
@@ -83,10 +98,31 @@ function postTodo (req, res, next) {
 			if (err) {
 				return res.status(500).json({message: "Something horrible happened"});
 			}
-			return res.status(201).json(todo.convertToOldTodo());
+
+			// 2. Add analytics event
+			var newTodoAnalyticsEvent = new TodoAnalytics({
+				userId: todo.userId
+			});
+
+			newTodoAnalyticsEvent.save(function (err, analyticsEvent) {
+				if (err) {
+					return res.status(500).json({message: "Something horrible happened"});
+				}
+
+				mailer.sendEmail({
+					emailTo : "bar@blurdybloop.com, baz@blurdybloop.com",
+					subject : "✔ New Todo Created!",
+					text    : "Your TODO has been created"
+				}, function (err) {
+					if (err) return callback(err);
+					return res.status(201).json(createdTodo.convertToOldTodo());
+				});
+
+			});
 		});
 	});
 }
+
 
 // PUT
 // ----
