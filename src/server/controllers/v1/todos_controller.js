@@ -1,12 +1,6 @@
 "use strict";
 
 var _ = require("lodash");
-var nodemailer = require("nodemailer");
-
-// create reusable transporter object using the default SMTP transport
-// To make this work you will have to configure your email's SMTP
-var transporter = nodemailer.createTransport("smtps://user%40gmail.com:pass@smtp.gmail.com");
-
 var mailer = require("./../../mailer/mailer");
 
 /* ====================================================== */
